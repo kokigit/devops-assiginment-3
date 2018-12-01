@@ -102,4 +102,7 @@ resource "aws_instance" "web_app" {
 resource "aws_eip_association" "eip_assoc" {
   instance_id   = "${aws_instance.web_app.id}"
   allocation_id = "${aws_eip.ip.id}"
+  tags {
+    Name = "DevOps3-webapp-ip"
+  }
 }

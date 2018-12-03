@@ -39,50 +39,35 @@ resource "aws_security_group" "default_web_sg" {
     protocol        = "-1"
     cidr_blocks     = ["0.0.0.0/0"]
   }
-}
-    
 
-resource "aws_security_group_rule" "ping_port" {
-  type = "ingress"
-  from_port = 8
-  to_port = 0
-  protocol = "icmp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.default_web_sg.id}"
-}
-
-resource "aws_security_group_rule" "ssh_port" {
-  type = "ingress"
-  from_port = 22
-  to_port = 22
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.default_web_sg.id}"
-}
-
-resource "aws_security_group_rule" "http_port" {
-  type = "ingress"
-  from_port = 80
-  to_port = 80
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.default_web_sg.id}"
-}
-
-resource "aws_security_group_rule" "https_port" {
-  type = "ingress"
-  from_port = 443
-  to_port = 443
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.default_web_sg.id}"
-}
-
-resource "aws_eip" "ip" {
-  vpc = true
+  ingress {
+    from_port = 8
+    to_port = 0
+    protocol = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_instance" "web_app" {
+  depends_on = ["aws_security_group.default_web_sg", "data.aws_ami.aws-linux"]
   ami           = "${data.aws_ami.aws-linux.id}"
   instance_type = "t2.micro"
   key_name      = "Enactor-Devops-3"
@@ -100,9 +85,7 @@ resource "aws_instance" "web_app" {
 }
 
 resource "aws_eip_association" "eip_assoc" {
+  depends_on = ["aws_instance.web_app"]
   instance_id   = "${aws_instance.web_app.id}"
-  allocation_id = "${aws_eip.ip.id}"
-  tags {
-    Name = "DevOps3-webapp-ip"
-  }
+  allocation_id = "eipalloc-0a2958e99339f0e19"
 }

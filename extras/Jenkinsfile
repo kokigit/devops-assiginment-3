@@ -1,0 +1,27 @@
+pipeline {
+  agent any
+  stages {
+    stage('AWS Deployment') {
+      steps {
+          withCredentials([
+            usernamePassword(credentialsId: 'aws-keys', passwordVariable: 'AWS_KEY', usernameVariable: 'AWS_SECRET'),
+            usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'REPO_PASSWORD', usernameVariable: 'REPO_USER'),
+          ]) {
+            sh 'rm -rf devops-assiginment-3'
+            sh 'git clone https://github.com/kokigit/devops-assiginment-3.git'
+            sh '''
+              echo "$AWS_KEY" | base64
+              echo "$AWS_SECRET" | base64
+              cd devops-assiginment-3/terraform_resources
+              export PATH=/usr/local/bin:$PATH
+              terraform init
+              terraform apply -auto-approve -var aws_access_key_id=${AWS_KEY} -var aws_secret_access_key=${AWS_SECRET}
+              git add terraform.tfstate
+              git -c user.name="Jenkins Updater" -c user.email="enactordevopsassignment3@gmail.com" commit -m "Persist terraform state"
+              git push https://${REPO_USER}:${REPO_PASSWORD}@github.com/kokigit/devops-assiginment-3.git master
+            '''
+        }
+      }
+    }
+  }
+}

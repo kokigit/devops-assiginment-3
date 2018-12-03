@@ -5,12 +5,12 @@ pipeline {
         jdk 'JDK 8' 
     }
     stages {
-        stage ('Initialize') {
+        stage ('Checkout') {
             steps {
                 checkout scm
             }
         }
-        stage ('BUILD') {
+        stage ('Maven BUILD') {
           steps {
             script {
               def server = Artifactory.server "jfrog-artifactory"

@@ -4,7 +4,7 @@ services:
     container_name: simple-mysql
     image: mysql/mysql-server:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: abc1234
+      MYSQL_ROOT_PASSWORD: somthing_difficult
       MYSQL_DATABASE: simple_db
       MYSQL_ROOT_HOST: '%'
       MYSQL_USER: 'user'
@@ -23,6 +23,6 @@ services:
       JDBC_USER: user
       JDBC_PASS: pass
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on: 
       - db

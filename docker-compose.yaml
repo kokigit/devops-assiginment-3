@@ -1,0 +1,28 @@
+version: "3"
+services:
+  db:
+    container_name: simple-mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: abc1234
+      MYSQL_DATABASE: simple_db
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'pass'
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+
+  web:
+    container_name: simple-web
+    image: kokigit/repo:simple_web_app_27
+    environment:
+      JDBC_URL: jdbc:mysql://db:3306/simple_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
+      JDBC_USER: user
+      JDBC_PASS: pass
+    ports:
+      - "8080:8080"
+    depends_on: 
+      - db

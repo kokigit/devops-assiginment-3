@@ -5,11 +5,6 @@ pipeline {
         jdk 'JDK 8' 
     }
     stages {
-        stage ('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage ('Maven BUILD') {
           steps {
             script {
@@ -40,7 +35,10 @@ pipeline {
           }
           post {
                 success {
-                    emailext body: 'Jenkins BUILD success', recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: "Jenkins BUILD-${env.BUILD_ID} email"
+                  echo 'pipeline success'
+                }
+                failure {
+                    emailext body: 'Jenkins BUILD success', recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: "Jenkins BUILD-${env.BUILD_ID} email"                  
                 }
           }
         }

@@ -22,8 +22,10 @@ node{
     withCredentials([sshUserPrivateKey(credentialsId: 'web-app-ssh', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
         remote.user = userName
         remote.identityFile = identity
-        stage("Run Containers") {
-            // writeFile file: 'abc.sh', text: 'ls'
+        stage("Run Container") {
+            writeFile file: '.env', text: "RELEASE_TAG=${SELECTED_IMAGE}"
+            // sshCommand remote: remote, command: "cat .env"
+            sshCommand remote: remote, command: "echo ${SELECTED_IMAGE}"
             sshCommand remote: remote, command: '''
               if ! [ -x "$(command -v docker)" ]; then
                 sudo yum update -y
@@ -43,12 +45,12 @@ node{
               cd devops-assiginment-3
               fi
               ls -la
-              if ! [ docker ps -aq ]; then
-              docker stop $(docker ps -aq)
-              docker rm $(docker ps -aq)
+              if [[ $(docker ps -aq) ]]; then
+                docker stop $(docker ps -aq)
+                docker rm $(docker ps -aq)
               fi
-              docker-compose up -d
             '''
+            sshCommand remote: remote, command: "cd devops-assiginment-3 && RELEASE_TAG=${SELECTED_IMAGE} docker-compose up -d"
         }
     }
   }

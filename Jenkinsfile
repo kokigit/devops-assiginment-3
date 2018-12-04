@@ -1,9 +1,5 @@
 pipeline {
     agent any
-    tools { 
-        maven 'Maven 3.6' 
-        jdk 'JDK 8' 
-    }
     stages {
         stage ('Maven BUILD') {
           steps {
@@ -13,11 +9,12 @@ pipeline {
               buildInfo.env.capture = true
               def rtMaven = Artifactory.newMavenBuild()
               rtMaven.opts = "-Denv=dev"
+              rtMaven.tool = "Maven 3.6"
               rtMaven.deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
               rtMaven.resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
               rtMaven.run pom: 'simple_web_app/pom.xml', goals: 'clean install', buildInfo: buildInfo
               buildInfo.retention maxBuilds: 5, maxDays: 3, deleteBuildArtifacts: true
-              server.publishBuildInfo buildInfo 
+              server.publishBuildInfo buildInfo
             }
           }
         }

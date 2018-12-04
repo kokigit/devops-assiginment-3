@@ -1,4 +1,4 @@
-GITHUB_BRANCH = '${env.IMAGE_NAME}'
+DOCKER_IMAGE = '${env.IMAGE_NAME}'
 node{
   def remote = [:]
   remote.name = 'simple_webapp_server'
@@ -23,9 +23,6 @@ node{
         remote.user = userName
         remote.identityFile = identity
         stage("Run Container") {
-            writeFile file: '.env', text: "RELEASE_TAG=${SELECTED_IMAGE}"
-            // sshCommand remote: remote, command: "cat .env"
-            sshCommand remote: remote, command: "echo ${SELECTED_IMAGE}"
             sshCommand remote: remote, command: '''
               if ! [ -x "$(command -v docker)" ]; then
                 sudo yum update -y
@@ -38,20 +35,28 @@ node{
                 sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
                 sudo chmod +x /usr/local/bin/docker-compose
               fi
-              if cd devops-assiginment-3; then 
-              git pull
-              else 
+              set +e
+                rm -rf devops-assiginment-3
+              set -e
               git clone https://github.com/kokigit/devops-assiginment-3.git
-              cd devops-assiginment-3
-              fi
-              ls -la
-              if [[ $(docker ps -aq) ]]; then
-                docker stop $(docker ps -aq)
-                docker rm $(docker ps -aq)
-              fi
             '''
-            sshCommand remote: remote, command: "cd devops-assiginment-3 && RELEASE_TAG=${SELECTED_IMAGE} docker-compose up -d"
+            echo "${SELECTED_IMAGE} will be deployed"
+            sshCommand remote: remote, command: "cd devops-assiginment-3 && docker-compose stop"
+            sshCommand remote: remote, command: "cd devops-assiginment-3 && docker-compose rm -f"
+            sshCommand remote: remote, command: "cd devops-assiginment-3 && echo \"RELEASE_TAG=${SELECTED_IMAGE}\" > .env && docker-compose up -d"
+            
         }
     }
+  }
+  stage('Test Deployment'){
+      sleep 10
+      sh '''
+        if curl -s 'curl http://3.0.154.82/simple_web_app/rememberme' | grep -q "Last Logged Time"; then
+            printf "Site is Up"
+        else
+            printf "Failed"
+            exit 1
+        fi
+      '''
   }
 }

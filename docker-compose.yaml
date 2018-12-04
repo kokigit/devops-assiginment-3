@@ -4,7 +4,7 @@ services:
     container_name: simple-mysql
     image: mysql/mysql-server:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: somthing_difficult
+      MYSQL_ROOT_PASSWORD: abc1234
       MYSQL_DATABASE: simple_db
       MYSQL_ROOT_HOST: '%'
       MYSQL_USER: 'user'
@@ -19,9 +19,9 @@ services:
     container_name: simple-web
     image: kokigit/repo:${RELEASE_TAG}
     environment:
-      JDBC_URL: jdbc:mysql://db:3306/simple_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
-      JDBC_USER: user
-      JDBC_PASS: pass
+      JDBC_URL: jdbc:mysql://db:3306/simple_db
+      JDBC_USER: root
+      JDBC_PASS: abc1234
     ports:
       - "80:8080"
     depends_on: 

@@ -17,7 +17,7 @@ services:
 
   web:
     container_name: simple-web
-    image: kokigit/repo:simple_web_app_27
+    image: kokigit/repo:${RELEASE_TAG}
     environment:
       JDBC_URL: jdbc:mysql://db:3306/simple_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
       JDBC_USER: user

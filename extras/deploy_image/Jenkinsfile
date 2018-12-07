@@ -51,7 +51,7 @@ node{
   stage('Test Deployment'){
       sleep 10
       sh '''
-        if curl -s 'curl http://3.0.154.82/simple_web_app/rememberme' | grep -q "Last Logged Time"; then
+        if curl "http://3.0.154.82/simple_web_app/rememberme" | grep -q "Last Logged Time"; then
             printf "Site is Up"
         else
             printf "Failed"
